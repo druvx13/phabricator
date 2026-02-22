@@ -1,8 +1,7 @@
 # NOTE: Thinking about adding files created by your operating system, IDE,
 # or text editor here? Don't! Add them to your per-user .gitignore instead.
 
-# Diviner
-/docs/
+# Diviner (generated output only — not the docs/ source folder)
 /.divinercache/
 /src/.cache/
 
@@ -26,7 +25,8 @@
 /support/debug.php
 
 # User-accessible hook for adhoc startup code
-/support/preamble.php
+# (preamble.php is shipped prebuilt for zero-config .env deployment)
+# /support/preamble.php
 
 # Users can link binaries here
 /support/bin/*

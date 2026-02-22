@@ -18,6 +18,23 @@
 
 set -uo pipefail
 
+# ── Detect OS family for package-manager hints ────────────────────────────
+_DISTRO="debian"
+if [[ -f /etc/os-release ]]; then
+  . /etc/os-release
+  case "${ID_LIKE:-} ${ID:-}" in
+    *rhel*|*centos*|*fedora*|*almalinux*|*rocky*) _DISTRO="rhel" ;;
+  esac
+fi
+_pkg_hint() {
+  local ext="$1" ver="$2"
+  if [[ "$_DISTRO" == "rhel" ]]; then
+    echo "sudo dnf install php-${ext}"
+  else
+    echo "sudo apt-get install php${ver}-${ext}"
+  fi
+}
+
 # ── Colour helpers ─────────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC='\033[0m'
 pass()  { echo -e "  ${GREEN}[PASS]${NC}  $*"; }
@@ -54,7 +71,7 @@ for ext in "${REQUIRED_EXTS[@]}"; do
        { [[ "$ext" == "opcache" ]] && php -m 2>/dev/null | grep -qi "opcache"; }; then
         pass "${ext}"
     else
-        fail "${ext} extension is missing. Install: sudo apt-get install php${PHP_MAJOR}.${PHP_MINOR}-${ext}"
+        fail "${ext} extension is missing. Install: $(_pkg_hint "${ext}" "${PHP_MAJOR}.${PHP_MINOR}")"
     fi
 done
 

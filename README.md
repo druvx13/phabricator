@@ -32,19 +32,28 @@
 
 ## Quick Start
 
-See **[docs/INSTALL.md](docs/INSTALL.md)** for the full installation guide.
+### Shared Hosting (InfinityFree, cPanel, FTP upload — no SSH needed)
+
+```text
+1. Upload this project to your web host
+2. Copy .env.example → .env and fill in your database credentials
+3. Visit  http://yoursite/install.php  — click "Run Database Setup"
+4. Delete install.php, then open your site
+```
+
+Full details: **[docs/INSTALL.md — Quick Deploy](docs/INSTALL.md#quick-deploy-shared-hosting-ftp-upload)**
+
+### VPS / Dedicated Server
 
 ```bash
-# Clone the repository
-git clone https://github.com/druvx13/phabricator.git
-cd phabricator
-
 # Verify your environment
 bash verify.sh
 
-# Run automated setup (requires root/sudo)
+# Automated LAMP or LEMP setup (requires root/sudo)
 sudo bash setup.sh
 ```
+
+Full details: **[docs/INSTALL.md](docs/INSTALL.md)**
 
 ---
 

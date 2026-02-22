@@ -151,11 +151,17 @@ info "Created /var/repo and /var/phabricator/files (owner: ${WEB_USER})"
 
 # ── Create MySQL user ──────────────────────────────────────────────────────
 info "Creating MySQL 'phabricator' user..."
-mysql -u root <<SQL
+# Write password to a temp file to avoid shell-escaping issues with special chars.
+# The temp file is readable only by root and is deleted immediately after use.
+_SQL_TMP="$(mktemp /tmp/phab_setup_XXXXXX.sql)"
+chmod 600 "${_SQL_TMP}"
+cat > "${_SQL_TMP}" <<ENDSQL
 CREATE USER IF NOT EXISTS 'phabricator'@'localhost' IDENTIFIED BY '${DB_PASS}';
-GRANT ALL PRIVILEGES ON \`phabricator\\_%\`.* TO 'phabricator'@'localhost';
+GRANT ALL PRIVILEGES ON \`phabricator_%\`.* TO 'phabricator'@'localhost';
 FLUSH PRIVILEGES;
-SQL
+ENDSQL
+mysql -u root < "${_SQL_TMP}"
+rm -f "${_SQL_TMP}"
 info "MySQL user 'phabricator'@'localhost' created."
 
 # ── Write phabricator config ──────────────────────────────────────────────

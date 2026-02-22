@@ -3,9 +3,9 @@
 # Stack: Nginx + PHP 8.1-FPM + MariaDB 10.6
 #
 # Usage:
-#   1. Copy .env.example to .env and set PHABRICATOR_BASE_URI and DB_PASSWORD.
+#   1. Copy .env.example to .env and fill in PHABRICATOR_BASE_URI and PHABRICATOR_MYSQL_PASS.
 #   2. docker compose up -d
-#   3. docker compose exec php ./bin/storage upgrade --force --user phabricator --password "${DB_PASSWORD}"
+#   3. docker compose exec php ./bin/storage upgrade --force --user phabricator --password "${PHABRICATOR_MYSQL_PASS}"
 #   4. docker compose exec php ./bin/config set phabricator.base-uri "${PHABRICATOR_BASE_URI}"
 #   5. Open http://localhost/ in your browser.
 #
@@ -21,7 +21,7 @@ services:
     environment:
       MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-rootpassword}"
       MARIADB_USER: phabricator
-      MARIADB_PASSWORD: "${DB_PASSWORD:-phabricatorpassword}"
+      MARIADB_PASSWORD: "${PHABRICATOR_MYSQL_PASS:-phabricatorpassword}"
       # Phabricator creates its own databases; we only need the user.
       MARIADB_DATABASE: phabricator_meta
     volumes:
@@ -57,7 +57,7 @@ services:
         apt-get update -qq &&
         apt-get install -y --no-install-recommends
           libcurl4-openssl-dev libpng-dev libonig-dev libxml2-dev libzip-dev git &&
-        docker-php-ext-install curl gd mbstring pdo_mysql xml zip opcache &&
+        docker-php-ext-install gd mbstring pdo_mysql xml zip opcache &&
         php-fpm
       "
 
