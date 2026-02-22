@@ -1,0 +1,35 @@
+# Phabricator – Root .htaccess
+#
+# PURPOSE: On shared hosting (InfinityFree, 000webhost, cPanel, etc.) the
+# domain's document root points at this project root, not at webroot/.
+# This file forwards all HTTP traffic transparently into webroot/ so that
+# Phabricator's own .htaccess (webroot/.htaccess) takes over from there.
+#
+# NOTHING needs to be changed here. The only file you need to edit is .env.
+#
+# Layout assumed:
+#   public_html/          ← your domain's document root / this project root
+#   public_html/.env      ← your config (copy from .env.example)
+#   public_html/webroot/  ← Phabricator's actual web root
+#   public_html/src/      ← PHP source (never served directly)
+#   public_html/conf/     ← config files (never served directly)
+#   ...
+
+Options -Indexes
+
+# ── Block direct access to sensitive directories ───────────────────────────
+# Prevents anyone from browsing src/, conf/, bin/, scripts/, support/, etc.
+
+RewriteEngine On
+
+RewriteRule ^(src|conf|bin|scripts|support|resources|externals)(\/.*)?$ - [F,L]
+
+# ── Forward everything else into webroot/ ─────────────────────────────────
+# Static assets (CSS, JS, images) inside webroot/ are served directly.
+# Everything else is handled by webroot/index.php via webroot/.htaccess.
+
+# Don't rewrite if the request already targets webroot/
+RewriteCond %{REQUEST_URI} !^/webroot/
+
+# Forward to webroot/, preserving the full path and query string
+RewriteRule ^(.*)$ webroot/$1 [L]

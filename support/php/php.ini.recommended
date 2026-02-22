@@ -1,0 +1,55 @@
+; PHP.ini recommended settings for Phabricator
+;
+; Instructions:
+;   - For Apache (LAMP):  place in /etc/php/8.1/apache2/conf.d/99-phabricator.ini
+;   - For PHP-FPM (LEMP): place in /etc/php/8.1/fpm/conf.d/99-phabricator.ini
+;   - Adjust PHP version (8.1) in paths to match your install.
+;   - Reload the web server / PHP-FPM after applying:
+;       sudo systemctl reload apache2   (LAMP)
+;       sudo systemctl reload php8.1-fpm && sudo systemctl reload nginx  (LEMP)
+
+; ── Memory & Execution ──────────────────────────────────────────────────────
+
+; Phabricator recommends at least 256 MB.  Increase if you see out-of-memory
+; errors when handling large repositories or diffs.
+memory_limit = 256M
+
+; Allow longer-running CLI operations (storage upgrades, arc lint, etc.).
+; The web server will use its own timeout (fastcgi_read_timeout / Timeout).
+max_execution_time = 120
+
+; ── File Uploads ────────────────────────────────────────────────────────────
+
+post_max_size       = 32M
+upload_max_filesize = 32M
+
+; ── Timezone ────────────────────────────────────────────────────────────────
+
+; Set to your server's local timezone.  Phabricator stores UTC internally.
+date.timezone = UTC
+
+; ── OPcache (strongly recommended in production) ────────────────────────────
+
+opcache.enable              = 1
+opcache.enable_cli          = 0
+opcache.memory_consumption  = 128
+opcache.interned_strings_buffer = 16
+opcache.max_accelerated_files   = 10000
+opcache.revalidate_freq     = 60
+opcache.fast_shutdown       = 1
+
+; ── Session ─────────────────────────────────────────────────────────────────
+
+session.gc_maxlifetime = 86400
+
+; ── MySQL / PDO ─────────────────────────────────────────────────────────────
+
+; Increase to handle large repository objects / file storage.
+; Must match or exceed the MySQL max_allowed_packet setting.
+; (Uncomment if needed — default of 8 MB is often sufficient.)
+; pdo_mysql.default_socket =
+
+; ── Security ────────────────────────────────────────────────────────────────
+
+; Expose minimal information about the PHP version.
+expose_php = Off
