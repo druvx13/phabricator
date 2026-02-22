@@ -16,20 +16,21 @@ Choose the path that matches your environment:
 This method requires **no SSH, no CLI, and no server configuration changes**.
 Everything is driven by a single `.env` file and a browser-based installer.
 
-> **Important:** Phabricator creates one database per application (e.g.
-> `phabricator_user`, `phabricator_repo`, …). Your MySQL user must have
-> `CREATE DATABASE` privileges on `yourprefix_%`. On most cPanel hosts,
-> a user granted **All Privileges** on a wildcard like `epiz_12345_%` qualifies.
+> **Important — shared hosting database restriction:**
+> Providers like InfinityFree, 000webhost, and most cPanel hosts **do not allow
+> `CREATE DATABASE` from PHP**. You must create all 57 required databases
+> manually in your hosting control panel and list them in your `.env` file.
+> The installer walks you through this.
 
-### Step 1 — Create a MySQL database and user
+### Step 1 — Create a MySQL user in cPanel
 
-In your hosting control panel (cPanel / DirectAdmin):
+In your hosting control panel (cPanel / DirectAdmin → **MySQL Databases**):
 
-1. Go to **MySQL Databases**.
-2. Create a new database, e.g. `epiz_12345_phabricator` (note the full prefix).
-3. Create a database user with a strong password.
-4. Grant the user **All Privileges** on `epiz_12345_%` (wildcard).
-5. Note down: **hostname** (usually `localhost`), **username**, **password**, and the **prefix** (e.g. `epiz_12345`).
+1. Create a **MySQL user** with a strong password (e.g. `epiz_12345_phab`).
+2. Note down: **hostname** (usually `localhost`), **username**, and **password**.
+
+> ℹ️ You do **not** need to create any databases yet — the installer will show
+> you the exact list to create in Step 3b.
 
 ### Step 2 — Upload the project
 
@@ -51,30 +52,51 @@ public_html/webroot/  ← Phabricator's web root (handled automatically)
 In the project root (one level above `webroot/`):
 
 1. Copy `.env.example` to `.env`.
-2. Edit `.env` and fill in at minimum:
+2. Edit `.env` and fill in the required values:
 
 ```ini
 PHABRICATOR_BASE_URI=http://yoursite.example.com/
 PHABRICATOR_MYSQL_HOST=localhost
-PHABRICATOR_MYSQL_USER=epiz_12345_user
+PHABRICATOR_MYSQL_USER=epiz_12345_phab
 PHABRICATOR_MYSQL_PASS=YOUR_DB_PASSWORD
+
+# Set this to your cPanel account username (the mandatory database prefix)
 PHABRICATOR_NAMESPACE=epiz_12345
 ```
 
-> Set `PHABRICATOR_NAMESPACE` to your database **prefix** (the part before `_phabricator`).
-> Phabricator will create databases named `epiz_12345_user`, `epiz_12345_repo`, etc.
+> ⚠️ **`PHABRICATOR_NAMESPACE` must equal your cPanel/InfinityFree username** (the
+> prefix all databases on your account must start with). Using the default
+> `phabricator` will cause error 1044 because the host won't grant access to a
+> database not prefixed with your username.
+
+### Step 3b — Pre-create all 57 databases and add them to `.env`
+
+Shared hosting providers require every database to be created manually.
+
+1. Open `http://yoursite.example.com/install.php` in your browser.
+2. Scroll to **③ Required Databases** — the installer shows all 57 database names
+   based on your `PHABRICATOR_NAMESPACE`.
+3. Click **"📋 Copy PHABRICATOR_DB_LIST for .env"** — this copies a ready-to-paste
+   line like:
+   ```
+   PHABRICATOR_DB_LIST=epiz_12345_almanac,epiz_12345_application,...
+   ```
+4. Paste that line into your `.env` file.
+5. In cPanel → **MySQL Databases**, create **each database** in the list one by one.
+6. After creating each database, add your MySQL user to it with **All Privileges**.
+
+> ℹ️ This is a one-time process. The installer page stays safe to visit until
+> you click "Run Database Setup" — it doesn't modify anything on GET requests.
 
 ### Step 4 — Run the web installer
 
-Open your browser and visit:
+Once all databases are created and `PHABRICATOR_DB_LIST` is set in `.env`:
 
-```
-http://yoursite.example.com/install.php
-```
-
-- The installer checks prerequisites and your `.env` values.
-- Click **Run Database Setup** — this imports the full schema without any CLI access.
-- When it reports success, click **→ Open Phabricator**.
+1. Visit `http://yoursite.example.com/install.php`.
+2. Confirm all checks in ① and ② are green, and ② shows
+   `PHABRICATOR_DB_LIST is set — N databases explicitly defined`.
+3. Click **Run Database Setup**.
+4. When it reports success, click **→ Open Phabricator**.
 
 ### Step 5 — Delete `install.php`
 
