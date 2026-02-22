@@ -35,10 +35,11 @@
 ### Shared Hosting (InfinityFree, cPanel, FTP upload — no SSH needed)
 
 ```text
-1. Upload this project to your web host
-2. Copy .env.example → .env and fill in your database credentials
-3. Visit  http://yoursite/install.php  — click "Run Database Setup"
-4. Delete install.php, then open your site
+1. Upload this project to your web host's public_html/ folder
+2. The root .htaccess routes all traffic to webroot/ automatically — no config needed
+3. Copy .env.example → .env and fill in your database credentials
+4. Visit  http://yoursite/install.php  — click "Run Database Setup"
+5. Delete install.php, then open your site
 ```
 
 Full details: **[docs/INSTALL.md — Quick Deploy](docs/INSTALL.md#quick-deploy-shared-hosting-ftp-upload)**

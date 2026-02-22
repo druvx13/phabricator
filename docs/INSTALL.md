@@ -35,7 +35,16 @@ In your hosting control panel (cPanel / DirectAdmin):
 
 Upload the **entire project directory** to your hosting `public_html` folder (or a subdirectory) via FTP, cPanel File Manager, or Git.
 
-The `webroot/` folder is the document root. If your host only lets you serve from `public_html/`, move the contents of `webroot/` to `public_html/` and adjust paths, **or** point your domain's document root at the `webroot/` subfolder in cPanel.
+The root `.htaccess` in the project automatically forwards all web traffic into `webroot/`, so you do **not** need to move any files or change your document root setting.
+
+```
+public_html/          ← upload everything here
+public_html/.htaccess ← routes traffic into webroot/ automatically
+public_html/.env      ← you will create this in Step 3
+public_html/webroot/  ← Phabricator's web root (handled automatically)
+```
+
+> **Tip:** Make sure your FTP client shows hidden files (dotfiles). `.htaccess` and `.env` start with a dot and are hidden by default in most FTP clients. In FileZilla: *Server → Force showing hidden files*.
 
 ### Step 3 — Configure `.env`
 
